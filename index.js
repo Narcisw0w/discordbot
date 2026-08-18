@@ -17,7 +17,7 @@ const client = new Client({
     ]
 });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
     console.log(`Botul a pornit cu succes! Conectat ca ${client.user.tag}`);
 });
 
