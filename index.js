@@ -1,3 +1,12 @@
+process.on('uncaughtException', (error) => {
+    console.error('Eroare critică (uncaughtException):', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Eroare neprinsă (unhandledRejection):', promise, 'motiv:', reason);
+});
+
+
 const { Client, GatewayIntentBits } = require('discord.js');
 
 // Inițializăm clientul cu permisiunile (intents) necesare
