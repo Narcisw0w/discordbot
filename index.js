@@ -31,7 +31,7 @@ client.on('messageCreate', async (message) => {
 
     // Comanda veche și simplă !ping (o păstrăm separat pentru teste)
     if (message.content === '!ping') {
-        return message.reply('Pong! 📯 Botul tău funcționează perfect pe cloud.');
+        return message.reply('Merge ce ma verifici.');
     }
 
     // Verificăm dacă mesajul începe cu prefixul nostru
