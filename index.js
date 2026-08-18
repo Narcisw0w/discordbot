@@ -38,31 +38,38 @@ client.on('messageCreate', async (message) => {
     }
 
     // Comanda Muzică: !play
+// Comanda Muzică: !play
     if (command === 'play') {
-        const voiceChannel = message.member.voice.channel;
-        if (!voiceChannel) return message.reply('❌ Intră într-un canal de voce!');
+        const voiceChannel = message.member?.voice.channel;
+        if (!voiceChannel) return message.reply('❌ Intră într-un canal de voce mai întâi!');
 
         const query = args.join(' ');
-        let searched = await play.search(query, { limit: 1 });
-        if (!searched.length) return message.reply('❌ Nu am găsit melodia.');
+        if (!query) return message.reply('❌ Scrie titlul unei melodii sau un link! (Ex: `!play manele`)');
 
-        const song = { title: searched[0].title, url: searched[0].url };
-        
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: message.guild.id,
-            adapterCreator: message.guild.voiceAdapterCreator,
-        });
+        try {
+            let searched = await play.search(query, { limit: 1 });
+            if (!searched.length) return message.reply('❌ Nu am găsit nicio melodie.');
 
-        const player = createAudioPlayer();
-        const stream = await play.stream(song.url);
-        const resource = createAudioResource(stream.stream, { inputType: stream.type });
+            const song = { title: searched[0].title, url: searched[0].url };
+            
+            const connection = joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: message.guild.id,
+                adapterCreator: message.guild.voiceAdapterCreator,
+            });
 
-        connection.subscribe(player);
-        player.play(resource);
-        
-        message.reply(`🎶 Acum cântă: **${song.title}**`);
+            const player = createAudioPlayer();
+            const stream = await play.stream(song.url);
+            const resource = createAudioResource(stream.stream, { inputType: stream.type });
+
+            connection.subscribe(player);
+            player.play(resource);
+            
+            message.reply(`🎶 Acum cântă: **${song.title}**`);
+        } catch (error) {
+            console.error(error);
+            message.reply('❌ A apărut o eroare la redarea melodiei.');
+        }
     }
-});
 
 client.login(process.env.DISCORD_TOKEN);
