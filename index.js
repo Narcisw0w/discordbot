@@ -8,7 +8,6 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const { Client, GatewayIntentBits } = require('discord.js');
 
-// Inițializăm clientul cu permisiunile necesare
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -17,42 +16,36 @@ const client = new Client({
     ]
 });
 
-client.once('clientReady', () => {
+client.once('ready', () => {
     console.log(`Botul a pornit cu succes! Conectat ca ${client.user.tag}`);
 });
 
-// Setăm prefixul pentru comenzi
 const prefix = '!';
 
-// Ascultăm fiecare mesaj trimis pe server
 client.on('messageCreate', async (message) => {
-    // Ignorăm boții
     if (message.author.bot) return;
-
-    // Comanda veche și simplă !ping (o păstrăm separat pentru teste)
-    if (message.content === '!ping') {
-        return message.reply('Merge ce ma verifici.');
-    }
-
-    // Verificăm dacă mesajul începe cu prefixul nostru
     if (!message.content.startsWith(prefix)) return;
 
-    // Extragem comanda și argumentele
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    // 1. Comanda: !spune
-    if (command === 'spune') {
+    // 1. Comanda: !ping
+    if (command === 'ping') {
+        return message.reply('Merge fram.');
+    }
+
+    // 2. Comanda: !spune
+    else if (command === 'spune') {
         const textToSay = args.join(' ');
         if (!textToSay) return message.reply('Te rog să adaugi un mesaj! (Ex: `!spune Salut`)');
         try { await message.delete(); } catch (e) {}
         message.channel.send(textToSay);
     }
 
-    // 2. Comanda: !ip
+    // 3. Comanda: !ip
     else if (command === 'ip') {
         const ipEmbed = {
-            color: 0x00FF00, // Culoare verde neon
+            color: 0x00FF00,
             title: '🌐 Server Info',
             description: 'Te așteptăm la joc! Conectează-te folosind datele de mai jos:\n\n**IP:** `RAGE.B-HOOD.RO`',
             footer: { text: 'B-Hood Community' }
@@ -60,7 +53,7 @@ client.on('messageCreate', async (message) => {
         message.channel.send({ embeds: [ipEmbed] });
     }
 
-    // 3. Comanda: !clear <număr>
+    // 4. Comanda: !clear <număr>
     else if (command === 'clear') {
         if (!message.member.permissions.has('ManageMessages')) {
             return message.reply('❌ Nu ai permisiunea de a șterge mesaje!');
@@ -77,10 +70,10 @@ client.on('messageCreate', async (message) => {
         });
         
         const replyMsg = await message.channel.send(`✅ Am șters **${amount}** mesaje.`);
-        setTimeout(() => replyMsg.delete().catch(() => {}), 4000); // Șterge confirmarea după 4 secunde
+        setTimeout(() => replyMsg.delete().catch(() => {}), 4000);
     }
 
-    // 4. Comanda: !kick <@user> [motiv]
+    // 5. Comanda: !kick <@user> [motiv]
     else if (command === 'kick') {
         if (!message.member.permissions.has('KickMembers')) {
             return message.reply('❌ Nu ai permisiunea de a da kick!');
@@ -93,10 +86,10 @@ client.on('messageCreate', async (message) => {
         
         member.kick(reason)
             .then(() => message.reply(`👢 **${member.user.tag}** a primit kick. Motiv: ${reason}`))
-            .catch(err => message.reply('❌ Nu pot da kick acestui utilizator. Poate are un rol mai mare ca al meu.'));
+            .catch(err => message.reply('❌ Nu pot da kick acestui utilizator.'));
     }
 
-    // 5. Comanda: !ban <@user> [motiv]
+    // 6. Comanda: !ban <@user> [motiv]
     else if (command === 'ban') {
         if (!message.member.permissions.has('BanMembers')) {
             return message.reply('❌ Nu ai permisiunea de a da ban!');
@@ -109,10 +102,10 @@ client.on('messageCreate', async (message) => {
         
         member.ban({ reason: reason })
             .then(() => message.reply(`🔨 **${member.user.tag}** a primit ban. Motiv: ${reason}`))
-            .catch(err => message.reply('❌ Nu pot da ban acestui utilizator. Poate are un rol mai mare ca al meu.'));
+            .catch(err => message.reply('❌ Nu pot da ban acestui utilizator.'));
     }
 
-    // 6. Comanda: !avatar [@user]
+    // 7. Comanda: !avatar [@user]
     else if (command === 'avatar') {
         const user = message.mentions.users.first() || message.author;
         const avatarEmbed = {
@@ -123,7 +116,7 @@ client.on('messageCreate', async (message) => {
         message.channel.send({ embeds: [avatarEmbed] });
     }
 
-    // 7. Comanda: !serverinfo
+    // 8. Comanda: !serverinfo
     else if (command === 'serverinfo') {
         const guild = message.guild;
         const owner = await guild.fetchOwner();
@@ -143,5 +136,4 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-// Autentificarea la final de tot
 client.login(process.env.DISCORD_TOKEN);
